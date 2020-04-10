@@ -1,19 +1,123 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <img alt="Vue logo" src="./assets/logo.png" />
+    <div v-if="hasItems">
+      <el-row
+        type="flex"
+        justify="center"
+        :gutter="40"
+        class="row"
+        :style="{
+          'flex-direction': rowDirection
+        }"
+      >
+        <el-col :span="9">
+          <transition name="el-zoom-in-top">
+            <Sent
+              :answer="true"
+              @answered="handleAnswered"
+              :isAnswered="isAnswered"
+              ref="sentence_1"
+              :key="picked"
+            >
+              {{ picked.right }}
+            </Sent>
+          </transition></el-col
+        >
+        <el-col :span="9">
+          <transition name="el-zoom-in-top">
+            <Sent
+              :answer="false"
+              @answered="handleAnswered"
+              :isAnswered="isAnswered"
+              ref="sentence_2"
+              :key="picked"
+            >
+              {{ picked.wrong }}
+            </Sent></transition
+          >
+        </el-col>
+      </el-row>
+      <el-button
+        @click="handleClick"
+        size="medium"
+        icon="el-icon-arrow-right"
+        circle
+        id="next"
+      ></el-button>
+    </div>
+    <h1 v-else>
+      已答完
+    </h1>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+//import HelloWorld from './components/HelloWorld.vue'
+import Sent from "./components/Sent.vue";
 
 export default {
-  name: 'App',
+  name: "App",
+  data() {
+    return {
+      picked: {},
+      isAnswered: false,
+      list: [],
+      rowDirection: "",
+      hasItems: true
+    };
+  },
+  created: function() {},
+  mounted: function() {
+    fetch("http://localhost:3000")
+      .then(res => res.json())
+      .then(data => {
+        this.list = data;
+      })
+      .then(() => {
+        this.picked = this.list.pop();
+        this.rowDirection = Math.floor(Math.random() * 2)
+          ? "row"
+          : "row-reverse";
+      });
+  },
+  updated: function() {},
+  methods: {
+    handleAnswered: function() {
+      this.isAnswered = true;
+    },
+    handleClick: function() {
+      if (!this.isAnswered) {
+        alert("请先作答");
+        return
+      }
+      if (this.list.length == 0) {
+        this.hasItems = false;
+      } else {
+        this.picked = this.list.pop();
+        this.rowDirection = Math.floor(Math.random() * 2)
+          ? "row"
+          : "row-reverse";
+        this.isAnswered = false;
+        this.$refs.sentence_1.result = null;
+        this.$refs.sentence_1.classOb = {
+          "box-card-unanswered": true,
+          "box-card-right": false,
+          "box-card-wrong": false
+        };
+        this.$refs.sentence_2.result = null;
+        this.$refs.sentence_2.classOb = {
+          "box-card-unanswered": true,
+          "box-card-right": false,
+          "box-card-wrong": false
+        };
+      }
+    }
+  },
   components: {
-    HelloWorld
+    Sent
   }
-}
+};
 </script>
 
 <style>
@@ -24,5 +128,13 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+.row {
+  margin-top: 2rem;
+}
+
+#next {
+  margin-top: 2rem;
 }
 </style>
