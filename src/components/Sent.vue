@@ -7,7 +7,7 @@
     </div>
     <transition name="el-zoom-in-center">
       <el-button
-        v-if="result != null"
+        v-if="result != null && showIcon"
         size="medium"
         :type="result ? 'success' : 'danger'"
         :icon="result ? 'el-icon-check' : 'el-icon-close'"
@@ -20,7 +20,7 @@
 <script>
 export default {
   name: "Sent",
-  props: ["answer", "isAnswered"],
+  props: ["answer", "isAnswered", "showIcon"],
   data() {
     return {
       classOb: {
@@ -67,6 +67,7 @@ export default {
 .box-card {
   transition: all 0.3s;
   cursor: pointer;
+  word-wrap: break-word;
 }
 
 .box-card:hover {

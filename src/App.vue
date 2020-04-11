@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png" />
-    <el-row id="statistics">
+    <el-row id="statistics" v-if="!isMobile">
       <el-badge :value="rightCount" type="success">
         <progress-bar :status="true" :percentage="(rightCount / 10) * 100" />
       </el-badge>
@@ -9,17 +9,29 @@
         <progress-bar :status="false" :percentage="(wrongCount / 10) * 100" />
       </el-badge>
     </el-row>
-    <div v-if="hasItems" class="_container">
-      <el-row
-        type="flex"
-        justify="center"
-        :gutter="50"
+    <div v-if="hasItems">
+      <div
         class="quiz"
-        :style="{
-          'flex-direction': rowDirection
-        }"
+        :style="
+          isMobile
+            ? {
+                display: 'flex',
+                'align-items': 'center',
+                'flex-direction': columnDirection
+              }
+            : {
+                display: 'flex',
+                'justify-content': 'center',
+                'flex-direction': rowDirection
+              }
+        "
       >
-        <el-col :span="10">
+        <el-col
+          :span="isMobile ? 20 : 10"
+          :style="
+            isMobile ? { 'margin-top': '2rem' } : { 'margin-left': '2rem' }
+          "
+        >
           <transition name="el-zoom-in-top">
             <Sent
               :answer="true"
@@ -27,12 +39,18 @@
               :isAnswered="isAnswered"
               ref="sentence_1"
               :key="picked"
+              :showIcon="!isMobile"
             >
               {{ picked.right }}
             </Sent>
           </transition></el-col
         >
-        <el-col :span="10">
+        <el-col
+          :span="isMobile ? 20 : 10"
+          :style="
+            isMobile ? { 'margin-top': '2rem' } : { 'margin-left': '2rem' }
+          "
+        >
           <transition name="el-zoom-in-top">
             <Sent
               :answer="false"
@@ -40,12 +58,13 @@
               :isAnswered="isAnswered"
               ref="sentence_2"
               :key="picked"
+              :showIcon="!isMobile"
             >
               {{ picked.wrong }}
             </Sent></transition
           >
         </el-col>
-      </el-row>
+      </div>
       <el-button
         v-show="isAnswered"
         @click="handleClick"
@@ -57,9 +76,7 @@
     </div>
     <h1 v-else>
       已答完
-      <p>
-        10 道题中, {{rightCount}} 道正确, {{wrongCount}} 道错误。
-      </p>
+      <p>10 道题中，{{ rightCount }} 道正确，{{ wrongCount }} 道错误。</p>
     </h1>
   </div>
 </template>
@@ -74,9 +91,11 @@ export default {
     return {
       picked: {},
       isStarted: false,
+      isMobile: null,
       isAnswered: false,
       list: [],
       rowDirection: "",
+      columnDirection: "",
       hasItems: true,
       rightCount: 0,
       wrongCount: 0
@@ -91,9 +110,17 @@ export default {
       })
       .then(() => {
         this.picked = this.list.pop();
-        this.rowDirection = Math.floor(Math.random() * 2)
-          ? "row"
-          : "row-reverse";
+        if (window.innerWidth >= 768) {
+          this.isMobile = false;
+          this.rowDirection = Math.floor(Math.random() * 2)
+            ? "row"
+            : "row-reverse";
+        } else {
+          this.isMobile = true;
+          this.columnDirection = Math.floor(Math.random() * 2)
+            ? "column"
+            : "column-reverse";
+        }
       });
   },
   updated: function() {},
@@ -111,10 +138,16 @@ export default {
         this.hasItems = false;
       } else {
         this.picked = this.list.pop();
-        this.rowDirection = Math.floor(Math.random() * 2)
-          ? "row"
-          : "row-reverse";
         this.isAnswered = false;
+        if (!this.isMobile) {
+          this.rowDirection = Math.floor(Math.random() * 2)
+            ? "row"
+            : "row-reverse";
+        } else {
+          this.columnDirection = Math.floor(Math.random() * 2)
+            ? "column"
+            : "column-reverse";
+        }
         this.$refs.sentence_1.result = null;
         this.$refs.sentence_1.classOb = {
           "box-card-unanswered": true,
@@ -157,17 +190,11 @@ export default {
   display: block !important;
 }
 
-._container {
-  margin: auto;
-  width: fit-content;
-}
-
 .quiz {
   margin-top: 2rem;
 }
 
 #next {
-  display: block;
-  margin: auto;
+  margin-top: 2rem;
 }
 </style>
