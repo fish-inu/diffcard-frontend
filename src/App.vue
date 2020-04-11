@@ -1,17 +1,25 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png" />
-    <div v-if="hasItems">
+    <el-row id="statistics">
+      <el-badge :value="rightCount" type="success">
+        <progress-bar :status="true" :percentage="(rightCount / 10) * 100" />
+      </el-badge>
+      <el-badge :value="wrongCount" type="danger">
+        <progress-bar :status="false" :percentage="(wrongCount / 10) * 100" />
+      </el-badge>
+    </el-row>
+    <div v-if="hasItems" class="_container">
       <el-row
         type="flex"
         justify="center"
-        :gutter="40"
-        class="row"
+        :gutter="50"
+        class="quiz"
         :style="{
           'flex-direction': rowDirection
         }"
       >
-        <el-col :span="9">
+        <el-col :span="10">
           <transition name="el-zoom-in-top">
             <Sent
               :answer="true"
@@ -24,7 +32,7 @@
             </Sent>
           </transition></el-col
         >
-        <el-col :span="9">
+        <el-col :span="10">
           <transition name="el-zoom-in-top">
             <Sent
               :answer="false"
@@ -39,6 +47,7 @@
         </el-col>
       </el-row>
       <el-button
+        v-show="isAnswered"
         @click="handleClick"
         size="medium"
         icon="el-icon-arrow-right"
@@ -48,6 +57,9 @@
     </div>
     <h1 v-else>
       已答完
+      <p>
+        10 道题中, {{rightCount}} 道正确, {{wrongCount}} 道错误。
+      </p>
     </h1>
   </div>
 </template>
@@ -55,16 +67,19 @@
 <script>
 //import HelloWorld from './components/HelloWorld.vue'
 import Sent from "./components/Sent.vue";
-
+import ProgressBar from "./components/ProgressBar.vue";
 export default {
   name: "App",
   data() {
     return {
       picked: {},
+      isStarted: false,
       isAnswered: false,
       list: [],
       rowDirection: "",
-      hasItems: true
+      hasItems: true,
+      rightCount: 0,
+      wrongCount: 0
     };
   },
   created: function() {},
@@ -83,14 +98,15 @@ export default {
   },
   updated: function() {},
   methods: {
-    handleAnswered: function() {
+    handleAnswered: function(ob) {
       this.isAnswered = true;
+      if (ob.isRight) {
+        this.rightCount++;
+      } else {
+        this.wrongCount++;
+      }
     },
     handleClick: function() {
-      if (!this.isAnswered) {
-        alert("请先作答");
-        return
-      }
       if (this.list.length == 0) {
         this.hasItems = false;
       } else {
@@ -115,7 +131,8 @@ export default {
     }
   },
   components: {
-    Sent
+    Sent,
+    ProgressBar
   }
 };
 </script>
@@ -130,11 +147,27 @@ export default {
   margin-top: 60px;
 }
 
-.row {
+#statistics {
+  position: fixed;
+  bottom: 1rem;
+  right: 6rem;
+}
+
+.el-badge {
+  display: block !important;
+}
+
+._container {
+  margin: auto;
+  width: fit-content;
+}
+
+.quiz {
   margin-top: 2rem;
 }
 
 #next {
-  margin-top: 2rem;
+  display: block;
+  margin: auto;
 }
 </style>

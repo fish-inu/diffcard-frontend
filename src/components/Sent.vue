@@ -28,18 +28,24 @@ export default {
         "box-card-right": false,
         "box-card-wrong": false
       },
-      result: null
+      result: null,
+      answered: false
     };
   },
   methods: {
     check: function() {
+      if (this.isAnswered) {
+        return;
+      }
       let result = this.answer == true;
       this.result = result;
       this.classOb["box-card-right"] = result;
       this.classOb["box-card-wrong"] = !result;
       this.classOb["box-card-unanswered"] = false;
       this.answered = true;
-      this.$emit("answered"); //inform another <Sent/> user has selected his answer.
+      this.$emit("answered", {
+        isRight: result
+      }); //inform another <Sent/> user has selected his answer.
     }
   },
   updated: function() {
@@ -60,7 +66,7 @@ export default {
 }
 .box-card {
   transition: all 0.3s;
-  cursor: pointer
+  cursor: pointer;
 }
 
 .box-card:hover {
