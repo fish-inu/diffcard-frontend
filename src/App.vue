@@ -1,13 +1,15 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <el-row id="statistics" v-if="!isMobile">
-      <el-badge :value="rightCount" type="success">
-        <progress-bar :status="true" :percentage="(rightCount / 10) * 100" />
-      </el-badge>
-      <el-badge :value="wrongCount" type="danger">
-        <progress-bar :status="false" :percentage="(wrongCount / 10) * 100" />
-      </el-badge>
+        <el-row type="flex" justify="center">
+      <img alt="Vue logo" src="./assets/logo.png" />
+      <div id="statistics" v-if="!isMobile">
+        <el-badge :value="rightCount" type="success">
+          <progress-bar :status="true" :percentage="(rightCount / 10) * 100" />
+        </el-badge>
+        <el-badge :value="wrongCount" type="danger">
+          <progress-bar :status="false" :percentage="(wrongCount / 10) * 100" />
+        </el-badge>
+      </div>
     </el-row>
     <div v-if="hasItems">
       <div
