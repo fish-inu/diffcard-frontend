@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-        <el-row type="flex" justify="center">
+    <el-row type="flex" justify="center">
       <img alt="Vue logo" src="./assets/logo.png" />
       <div id="statistics" v-if="!isMobile">
         <el-badge :value="rightCount" type="success">
@@ -11,7 +11,11 @@
         </el-badge>
       </div>
     </el-row>
-    <div v-if="hasItems">
+    <div
+      v-if="hasItems"
+      v-loading="isLoading"
+      element-loading-background="rgba(255,255,255,1)"
+    >
       <div
         class="quiz"
         :style="
@@ -100,15 +104,19 @@ export default {
       columnDirection: "",
       hasItems: true,
       rightCount: 0,
-      wrongCount: 0
+      wrongCount: 0,
+      isLoading: null
     };
   },
-  created: function() {},
+  created: function() {
+    this.isLoading = true;
+  },
   mounted: function() {
     fetch("http://localhost:3000")
       .then(res => res.json())
       .then(data => {
         this.list = data;
+        this.isLoading = false;
       })
       .then(() => {
         this.picked = this.list.pop();
@@ -183,11 +191,8 @@ export default {
 }
 
 #statistics {
-  position: fixed;
-  bottom: 1rem;
-  right: 6rem;
+  margin-left: 2rem;
 }
-
 .el-badge {
   display: block !important;
 }
