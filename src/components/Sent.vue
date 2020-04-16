@@ -68,6 +68,7 @@ export default {
   transition: all 0.3s;
   cursor: pointer;
   word-wrap: break-word;
+  text-align: initial;
 }
 
 .box-card:hover {
